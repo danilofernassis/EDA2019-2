@@ -316,21 +316,124 @@ void imprime_TABB(TABB *a)
   printTree(a, NULL, 0);
 }
 
+void imprime_caminho(ARV *a, int x)
+{
+  if(!a)
+    return;
+  printf("%d->", a->info);
+  if(a->info > x)
+    imprime_caminho(a->esq, x);
+  if(a->info < x)
+    imprime_caminho(a->dir, x);
+}
+
 void imprime_intervalo(TABB *a, int x, int y)
 {
   if(!a)
     return;
   if((a->info >= x) && (a->info <= y))
   {
-    printf("%d->", a->info);
     imprime_intervalo(a->esq, x, y);
+    printf("%d->", a->info);
     imprime_intervalo(a->dir, x, y);
   }
-  else if(a->info < x)
+  if(a->info < x)
     imprime_intervalo(a->dir, x, y);
-  else if(a->info > y)
+  if(a->info > y)
     imprime_intervalo(a->esq, x, y);
 }
+
+void compara(TABB *a, int x, int *resp)
+{
+  if(!a)
+    return;
+  
+  if(a->info == x)
+    if(*resp == INT_MAX)
+      *resp = a->info;
+
+  if(a->info > x)
+  {
+    if(*resp == x)
+      *resp = a->info;
+    else
+    {
+      if(*resp > a->info)
+        *resp = a->info;
+    }
+  }
+
+  if(x < a->info)
+    compara(a->esq, x, resp);
+  else
+    compara(a->dir, x, resp);
+
+}
+
+int sucessor(TABB *a, int x)
+{
+  if(!a)
+  {
+    printf("Arvore vazia\n");
+    exit(1);
+  }
+  int resp = INT_MAX;
+  compara(a, x, &resp);
+  if(resp == INT_MAX)
+  {
+    printf("Valor superior aos da arvore\n");
+    exit(1);
+  }
+  else
+    return resp;
+}
+
+void compara_ant(TABB *a, int x, int *resp)
+{
+  if(!a)
+    return;
+  
+  if(a->info == x)
+    if(*resp == INT_MIN)
+      *resp = a->info;
+
+  if(a->info < x)
+  {
+    if(*resp == x)
+      *resp = a->info;
+    else
+    {
+      if(*resp < a->info)
+        *resp = a->info;
+    }
+  }
+
+  if(x > a->info)
+    compara_ant(a->dir, x, resp);
+  else
+    compara_ant(a->esq, x, resp);
+
+}
+
+int antecessor(TABB *a, int x)
+{
+  if(!a)
+  {
+    printf("Arvore vazia\n");
+    exit(1);
+  }
+  int resp = INT_MIN;
+  compara_ant(a, x, &resp);
+  if(resp == INT_MIN)
+  {
+    printf("Valor inferior aos da arvore\n");
+    exit(1);
+  }
+  else
+    return resp;
+}
+
+
 
 int main(void) {
   TABB *arv = cria_vazia();
