@@ -578,6 +578,117 @@ void fator_bal(TAB *a)
   fator_bal(a->dir);
 }
 
+TLSE *preenche_ancestral(TAB *a, TLSE *l, int x)
+{
+  if(!a || (a->info == x))
+    return l;
+  l = lst_insere(l, a->info);
+  if(busca(a->esq, x))
+    l = preenche_ancestral(a->esq, l, x);
+  else
+    l = preenche_ancestral(a->dir, l, x);
+  return l;
+}
+
+TLSE *ancestrais(TAB *a, int x)
+{
+  if(!a || (a->info == x) || !busca(a, x))
+    return NULL;
+  TLSE *l = NULL;
+  l = lst_insere(l, a->info);
+  if(busca(a->esq, x))
+    l = preenche_ancestral(a->esq, l, x);
+  else
+    l = preenche_ancestral(a->dir, l, x);
+  return l;
+}
+
+void compara(TAB *a, int x, int *resp)
+{
+  if(!a)
+    return;
+  if(a->info == x)
+  {
+    if(*resp == INT_MAX)
+      *resp = a->info;
+  }
+
+  if(a->info > x)
+  {
+    if(*resp == x)
+      *resp = a->info;
+    else
+    {
+      if(*resp > a->info)
+        *resp = a->info;
+    }
+
+  }
+
+  compara(a->esq, x, resp);
+  compara(a->dir, x, resp);
+}
+
+int sucessor(TAB *a, int x)
+{
+  if(!a)
+  {
+    printf("Arvore vazia\n");
+    exit(1);
+  }
+  int resp = INT_MAX;
+  compara(a, x, &resp);
+  if(resp == INT_MAX)
+  {
+    printf("Valor superior aos valores da arvore\n");
+    exit(1);
+  }
+  else
+    return resp;
+}
+
+void compara_ant(TAB *a, int x, int *resp)
+{
+  if(!a)
+    return;
+  
+  if(a->info == x)
+  {
+    if(*resp == INT_MIN)
+      *resp = a->info;
+  }
+  if(a->info < x)
+  {
+    if(*resp == x)
+      *resp = a->info;
+    else
+    {
+      if(*resp < a->info)
+        *resp = a->info;
+    }
+  }
+  compara_ant(a->esq, x, resp);
+  compara_ant(a->dir, x, resp);
+}
+
+int antecessor(TAB *a, int x)
+{
+  if(!a)
+  {
+    printf("Arvore vazia");
+    exit(1);
+  }
+  int resp = INT_MIN;
+  compara_ant(a, x, &resp);
+  if(resp == INT_MIN)
+  {
+    printf("Valor inferior aos valores da arvore\n");
+    exit(1);
+  }
+  else
+    return resp;
+}
+
 
 int main(void) {
   TAB *arv = cria_vazia(),
