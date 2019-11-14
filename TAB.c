@@ -298,6 +298,286 @@ void imprime_intervalo(TAB *a, int x, int y)
   imprime_intervalo(a->dir, x, y);
 }
 
+TAB *remove_pai(TAB *a, int x)
+{
+  if(!a)
+    return a;
+  if(a->esq)
+    if(a->esq->info == x)
+      a = remove_no(a, a->info);
+  if(a->dir)
+    if(a->dir->info == x)
+      a = remove_no(a, a->info);
+  a->esq = remove_pai(a->esq, x);
+  a->dir = remove_pai(a->dir, x);
+  return a;
+}
+
+TAB *busca(TAB *a, int x)
+{
+  if(!a)
+    return NULL;
+  if(a->info == x)
+    return a;
+  TAB *resp = busca(a->esq, x);
+  if(resp)
+    return resp;
+  return busca(a->dir, x);
+}
+
+TAB *remove_pai_filhos(TAB *a, int x)
+{
+  if(!a)
+    return NULL;
+  TAB *localiza = busca(a, x);
+  if(!localiza)
+    return a;
+  else
+  {
+    if(localiza->esq)
+      a = remove_no(a, localiza->esq->info);
+    if(localiza->dir)
+      a = remove_no(a, localiza->dir->info);
+    a = remove_pai(a, x);
+  }
+  return a;
+}
+
+int conta_no(TAB *a)
+{
+  if(!a)
+    return 0;
+  return 1+conta_no(a->esq)+conta_no(a->dir);
+}
+
+void preenche_vet(TAB *a, int *vet, int *i)
+{
+  if(!a)
+    return;
+  preenche_vet(a->esq, vet, i);
+  vet[*i] = a->info;
+  (*i)++;
+  preenche_vet(a->dir, vet, i);
+}
+
+int eabb(TAB *a)
+{
+  if(!a)
+    return 1;
+  int n = conta_no(a);
+  int vet[n], i=0;
+  preenche_vet(a, vet, &i);
+  for(i=1; i < n; i++)
+    if(vet[i] < vet[i-1])
+      return 0;
+  return 1;
+}
+
+TLSE *junta_listas(TLSE *l1, TLSE *l2)
+{
+  if(!l1)
+    return l2;
+  if(!l2)
+    return l1;
+  TLSE *p = l1;
+  while(p->prox)
+   p = p->prox;
+  p->prox = l2;
+  return l1;
+}
+
+TLSE *preenche_lista(TAB *a)
+{
+  if(!a)
+    return NULL;
+  TLSE *resp = NULL;
+  TLSE *esq = preenche_lista(a->esq);
+  resp = junta_listas(resp, esq);
+  resp = lst_insere_fim(resp, a->info);
+  TLSE *dir = preenche_lista(a->dir);
+  resp = junta_listas(resp, dir);
+  return resp;
+}
+
+int eabb_lista(TAB *a)
+{
+  if(!a)
+    return 1;
+  TLSE *l = preenche_lista(a);
+  TLSE *p = l->prox, *ant = l;
+  while(p->prox)
+  {
+    if(p->info < ant->info)
+      return 0;
+    p = p->prox;
+  }
+  return 1;
+}
+
+void junta_pilhas(TP *p1, TP *p2)
+{
+  if(vazia_pilha(p2))
+    return;
+  TP *aux = cria_pilha();
+  while(!vazia_pilha(p2))
+    push(aux, pop(p2));
+  while(!vazia_pilha(aux))
+    push(p1, pop(aux));
+}
+
+TP *preenche_pilha(TAB *a)
+{
+  if(!a)
+  {
+    TP *vazia = cria_pilha();
+    return vazia;
+  }
+  TP *resp = cria_pilha();
+  TP *esq = cria_pilha();
+  esq = preenche_pilha(a->esq);
+  junta_pilhas(resp, esq);
+  push(resp, a->info);
+  libera_pilha(esq);
+  TP *dir = preenche_pilha(a->dir);
+  junta_pilhas(resp, dir);
+  libera_pilha(dir);
+  return resp;
+}
+
+int eabb_pilha(TAB *a)
+{
+  if(!a)
+    return 1;
+  TP *p = cria_pilha();
+  p = preenche_pilha(a);
+  imprime_pilha(p);
+  int x = pop(p);
+  while(!vazia_pilha(p))
+  {
+    int y = pop(p);
+    if(x < y)
+      return 0;
+    x = y;
+  }
+  return 1;
+}
+
+int testa(TAB *a, int n)
+{
+  if(!a)
+    return 1;
+  if((n%2)==0)
+    if((a->esq && !a->dir) || (!a->dir && a->esq))
+      return 0;
+  if((n%2)!=0)
+    if((a->esq && a->dir) || (!a->dir && !a->esq))
+      return 0;
+  return testa(a->esq, n+1)*testa(a->dir, n+1);
+}
+
+int verifica(TAB *a)
+{
+  if(!a)
+    return 1;
+  return testa(a, 0);
+}
+
+int max(TAB *a)
+{
+  if(!a)
+    return INT_MIN;
+  int resp = a->info;
+  int esq = max(a->esq);
+  int dir = max(a->dir);
+  if(esq > resp)
+    resp = esq;
+  if(dir > resp)
+    resp = dir;
+  return resp;
+}
+
+int soma(TAB *a)
+{
+  if(!a)
+    return 0;
+  return a->info + soma(a->esq) + soma(a->dir);
+}
+
+int pares(TAB *a)
+{
+  if(!a)
+    return 0;
+  if(!(a->info % 2))
+    return 1 + pares(a->esq) + pares(a->dir);
+  else
+    return pares(a->esq) + pares(a->dir);
+}
+
+int conta_nivel(TAB *a, int x, int n)
+{
+  if(!a)
+    return INT_MIN;
+  if(a->info == x)
+    return n;
+  int resp = conta_nivel(a->esq, x, n+1);
+  if(resp != INT_MIN)
+    return resp;
+  return conta_nivel(a->dir, x, n+1);
+}
+
+int nivel_x(TAB *a, int x)
+{
+  if((!a) || (!busca(a, x)))
+    return INT_MIN;
+  return conta_nivel(a, x, 0);
+}
+
+
+void troca(TAB *a)
+{
+  if(!a)
+    return;
+  troca(a->esq);
+  troca(a->dir);
+  TAB *temp = a->esq;
+  a->esq = a->dir;
+  a->dir = temp;
+}
+
+int maximo(int a, int b)
+{
+  if(a > b)
+    return a;
+  else
+    return b;
+}
+
+int altura(TAB *a)
+{
+  if(!a)
+    return -1;
+  return 1+maximo(altura(a->esq), altura(a->dir));
+}
+
+int eavl(TAB *a)
+{
+  if(!a)
+    return 1;
+  int fb = altura(a->esq) - altura(a->dir);
+  if((fb < -1) || (fb > 1))
+    return 0;
+  return eavl(a->esq)*eavl(a->dir);
+}
+
+void fator_bal(TAB *a)
+{
+  if(!a)
+    return;
+  a->fb = altura(a->esq) - altura(a->dir);
+  fator_bal(a->esq);
+  fator_bal(a->dir);
+}
+
 
 int main(void) {
   TAB *arv = cria_vazia(),
