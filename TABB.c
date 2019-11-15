@@ -433,6 +433,110 @@ int antecessor(TABB *a, int x)
     return resp;
 }
 
+TABB *busca(TABB *a, int x)
+{
+  if(!a)
+    return NULL;
+  if(a->info == x)
+    return a;
+  if(a->info > x)
+    return busca(a->esq, x);
+  return busca(a->dir, x);
+}
+
+TLSE *junta_listas(TLSE *l1, TLSE *l2)
+{
+  if(!l1)
+    return l2;
+  if(!l2)
+    return l1;
+  TLSE *p = l1;
+  while(p->prox)
+    p = p->prox;
+  p->prox = l2;
+  return l1;
+}
+
+TLSE *caminho(TABB *a, int x)
+{
+  if(!a)
+    return NULL;
+  TLSE *l = NULL;
+  l = lst_insere(l, a->info);
+  if(a->info == x)
+    return l;
+  if(a->info > x)
+  {
+    TLSE *esq = caminho(a->esq, x);
+    l = junta_listas(esq, l);
+  }
+  else
+  {
+    TLSE *dir = caminho(a->dir, x);
+    l = junta_listas(dir, l);
+  }
+  return l;
+}
+
+TLSE *ancestral(TABB *a, int x)
+{
+  if((!a) || (!busca(a,x)))
+    return NULL;
+  TLSE *l = caminho(a,x);
+  return l;
+}
+
+void junta_pilhas(TP *p1, TP *p2)
+{
+  if(!p2)
+    return;
+  TP *aux = cria_pilha();
+  while(!vazia_pilha(p2))
+    push(aux, pop(p2));
+  while(!vazia_pilha(aux))
+    push(p1, pop(aux));
+  libera_pilha(p2);
+  libera_pilha(aux);
+}
+
+TP *caminho_pilha(TABB *a, int x)
+{
+  if(!a)
+  {
+    TP *vazia = cria_pilha();
+    return vazia;
+  }
+  TP *p = cria_pilha();
+  push(p, a->info);
+  if(a->info == x)
+    return p;
+  if(a->info > x)
+  {
+    TP *esq = caminho_pilha(a->esq, x);
+    junta_pilhas(p, esq);
+  }
+  else
+  {
+    TP *dir = caminho_pilha(a->dir, x);
+    junta_pilhas(p, dir);
+  }
+  return p;
+}
+
+TP *ancestral_pilha(TABB *a, int x)
+{
+  if((!a) || (!busca(a, x)))
+  {
+    TP *vazia = cria_pilha();
+    return vazia;
+  }
+  else
+  {
+    TP *p = caminho_pilha(a, x);
+    return p;
+  }
+}
+
 
 
 int main(void) {
