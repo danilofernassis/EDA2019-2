@@ -1,3 +1,21 @@
+/*
+- copia arvore
+- espelho da arvore
+- maior, menor elemento
+- arvores iguais
+- retira pares
+- colore arvore
+- qte no interno e folha
+- imprime intervalo
+- retorna em lista o caminho ate determinado elemento
+- retorna elemento sucessor de elemento x
+- retorna elemento antecessor de elemento x
+- remove pai de determinado elemento
+- verifica se é avl
+- altura arvore
+- retorna nivel de determinado elemento
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -148,15 +166,8 @@ TABB *maior(TABB *a)
   if(!a)
     return a;
   TABB *resp = a;
-  TABB *esq = maior(a->esq);
-  TABB *dir = maior(a->dir);
-
-  if(esq)
-    if(resp->info < esq->info)
-      resp = esq;
-  if(dir)
-    if(resp->info < dir->info)
-      resp = dir;
+  if(a->dir)
+      resp = maior(a->dir);
   return resp;
 }
 //********************************************************
@@ -167,15 +178,8 @@ TABB *menor(TABB *a)
   if(!a)
     return a;
   TABB *resp = a;
-  TABB *esq = menor(a->esq);
-  TABB *dir = menor(a->dir);
-
-  if(esq)
-    if(resp->info > esq->info)
-      resp = esq;
-  if(dir)
-    if(resp->info > dir->info)
-      resp = dir;
+  if(a->esq)
+      resp = menor(a->esq);
   return resp;
 }
 //********************************************************
@@ -331,16 +335,30 @@ void imprime_intervalo(TABB *a, int x, int y)
 {
   if(!a)
     return;
-  if((a->info >= x) && (a->info <= y))
+  if(a->info == x)
+  {
+    printf("%d->", a->info);
+    imprime_intervalo(a->dir, x, y);
+  }
+  if(a->info == y)
+  {
+    printf("%d->", a->info);
+    imprime_intervalo(a->esq, x, y);
+  }
+
+  if(a->info < x)
+    imprime_intervalo(a->dir, x, y);
+
+  if(a->info > y)
+    imprime_intervalo(a->esq, x, y);
+
+  if((a->info > x) && (a->info < y))
   {
     imprime_intervalo(a->esq, x, y);
     printf("%d->", a->info);
     imprime_intervalo(a->dir, x, y);
   }
-  if(a->info < x)
-    imprime_intervalo(a->dir, x, y);
-  if(a->info > y)
-    imprime_intervalo(a->esq, x, y);
+
 }
 
 void compara(TABB *a, int x, int *resp)
@@ -535,6 +553,91 @@ TP *ancestral_pilha(TABB *a, int x)
     TP *p = caminho_pilha(a, x);
     return p;
   }
+}
+
+int maior_elem(TABB *a)
+{
+  if(!a)
+    return INT_MIN;
+  int resp = a->info;
+  if(a->dir)
+    resp = maior_elem(a->dir);
+  return resp;
+}
+
+int menor_elem(TABB *a)
+{
+  if(!a)
+    return INT_MIN;
+  int resp = a->info;
+  if(a->esq)
+    resp = menor_elem(a->esq);
+  return resp;
+}
+
+TABB *remove_pai(TABB*a, int x)
+{
+  if(!a)
+    return NULL;
+  if((a->esq) && (a->esq->info == x))
+    a = remove_no(a, a->info);
+  if((a->dir) && (a->dir->info == x))
+    a = remove_no(a, a->info);
+  if(a->info > x)
+    a->esq = remove_pai(a->esq, x);
+  else
+    a->dir = remove_pai(a->dir, x);
+  return a;
+}
+
+int maximo(int a, int b)
+{
+  if(a > b)
+    return a;
+  return b;
+}
+
+int altura(TABB *a)
+{
+  if(!a)
+    return -1;
+  return 1+(maximo(altura(a->esq), altura(a->dir)));
+}
+
+int testa_avl(TABB *a)
+{
+  if(!a)
+    return 1;
+  int fb = altura(a->esq) - altura(a->dir);
+  if((fb > 1) || (fb < -1))
+    return 0;
+  else
+    return testa_avl(a->esq)*testa_avl(a->dir);
+}
+
+int eavl(TABB *a)
+{
+  if(!a)
+    return 0;
+  return testa_avl(a);
+}
+
+int conta_nivel(TABB *a, int x, int n)
+{
+  if(!a)
+    return INT_MIN;
+  if(a->info == x)
+    return n;
+  if(a->info > x)
+    return conta_nivel(a->esq, x, n+1);
+  return conta_nivel(a->dir, x, n+1);
+}
+
+int nivelx(TABB *a, int x)
+{
+  if(!a)
+    return INT_MIN;
+  return conta_nivel(a, x, 0);
 }
 
 
