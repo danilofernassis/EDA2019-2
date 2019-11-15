@@ -1,3 +1,28 @@
+/*
+- copia arvore
+- espelho da arvore
+- maior, menor elemento
+- arvores iguais
+- retira pares
+- colore arvore
+- qte no interno e folha
+- imprime intervalo
+- remove pai de determinado elemento
+- remove filhos de determinado elemento
+- conta qte de no
+- verifica se é abb (vetor, lista, pilha)
+- verifica se é avl
+- verifica se nivel impar tem um filho e se par tem 2 ou 0 filhos
+- retorna nivel de determinado elemento
+- troca arvore da direta com a esquerda
+- altura arvore
+- verifica se todo filho a esq é folha
+- verifica se todo no so tem um filho
+- retorna elemento sucessor de elemento x
+- retorna elemento antecessor de elemento x
+- retorna em lista o caminho ate determinado elemento
+- verifica se duas arvores possuem os mesmos valores independento formato arvore
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
