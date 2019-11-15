@@ -689,6 +689,113 @@ int antecessor(TAB *a, int x)
     return resp;
 }
 
+//verifica se todo filho da esquerda é um nó folha.
+int teste(TAB *a)
+{
+  if(!a)
+    return 0;
+  int resp = 1;
+  TAB *p = a;
+  while(p)
+  {
+    if(!p->esq)
+      return 0;
+    if(p->esq)
+      if((p->esq->esq)||(p->esq->dir))
+        return 0;
+    p = p->dir;
+  }
+  return resp;
+}
+
+//verifica se todos os nos da arvores possuem apenas um filho ou nenhum.
+int zz(TAB *a)
+{
+  if(!a)
+    return 0;
+  TAB *p = a;
+  while(p->esq || p->dir)
+  {
+    if(p->esq && p->dir)
+      return 0;
+    else if(p->esq)
+      p = p->esq;
+    else
+      p = p->dir;
+  }
+  return 1;
+}
+
+
+TLSE *caminho(TAB *a, int x)
+{
+  TLSE *l = NULL;
+  l = lst_insere(l, a->info);
+  if(a->info == x)
+    return l;
+  if(busca(a->esq, x))
+  {
+    TLSE *esq = caminho(a->esq, x);
+    l = junta_listas(esq, l);
+  }
+  else
+  {
+    TLSE *dir = caminho(a->dir, x);
+    l = junta_listas(dir, l);
+  }
+  return l;
+}
+
+TLSE *ancestral(TAB *a, int x)
+{
+  if(!a || !busca(a, x))
+    return NULL;
+  TLSE *l = caminho(a, x);
+  return l;
+}
+
+//verifica se duas arvores possuem os mesmos valores independente da forma que eles estao organizados na arvore.
+int mi(TAB *a1, TAB *a2)
+{
+  if((!a1 && a2) || (!a1 && a2))
+    return 0;
+  //verifica se as arvores possuem as mesmas qtdes de nos.
+  int cont1 = conta_no(a1);
+  int cont2 = conta_no(a2);
+  if(cont1 != cont2)
+    return 0;
+  int vet1[cont1], vet2[cont1];
+  int i = 0, j = 0;
+  //pega os valores da arvore e preenche os vetores
+  preenche_vet(a1, vet1, &i);
+  preenche_vet(a2, vet2, &j);
+  //ordena os dois vetores
+  for(i = 0; i < cont1; i++)
+    for(j = i+1; j < cont1; j++)
+    {
+      if(vet1[j] < vet1[i])
+      {
+        int temp = vet1[i];
+        vet1[i] = vet1[j];
+        vet1[j] = temp;
+      }
+
+      if(vet2[j] < vet2[i])
+      {
+        int temp = vet2[i];
+        vet2[i] = vet2[j];
+        vet2[j] = temp;
+      }
+    }
+  
+  int resp = 1;
+  //verifica se os dois vetores sao iguais
+  for(i = 0; i < cont1; i++)
+    if(vet1[i] != vet2[i])
+      resp = 0;
+  return resp;
+}
+
 
 int main(void) {
   TAB *arv = cria_vazia(),
