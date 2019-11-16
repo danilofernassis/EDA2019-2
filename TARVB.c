@@ -2,6 +2,8 @@
 - retorna lista dos maiores que x;
 - retorna lista dos menores que x;
 - retorna lista do intervalo de x e y;
+- retorna maior elemento;
+- retorna menor elemento;
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -562,6 +564,26 @@ int antecessor(TAB *a, int x)
   }
   else
     return resp;
+}
+
+int maior(TAB *a)
+{
+  if(!a)
+    return INT_MIN;
+  if(a->folha)
+    return a->chave[a->nchaves - 1];
+  else
+    return maior(a->filho[a->nchaves]);
+}
+
+int menor(TAB *a)
+{
+  if(!a)
+    return INT_MIN;
+  if(a->folha)
+    return a->chave[0];
+  else
+    return menor(a->filho[0]);
 }
 
 
