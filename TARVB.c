@@ -1,3 +1,8 @@
+/*
+- retorna lista dos maiores que x;
+- retorna lista dos menores que x;
+- retorna lista do intervalo de x e y;
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -313,7 +318,7 @@ TLSE *junta_lista(TLSE *l1, TLSE *l2)
   return l1;
 }
 
-TLSE *insere_intervalo2(TAB *a, int x, int y)
+TLSE *insere_intervalo(TAB *a, int x, int y)
 {
   if(!a)
     return NULL;
@@ -325,36 +330,13 @@ TLSE *insere_intervalo2(TAB *a, int x, int y)
     i++;
   while((i < a->nchaves) && (a->chave[i] < y))
   {
-    TLSE *aux1 = insere_intervalo2(a->filho[i], x, y);
-    l = junta_lista(l, aux1);
-    l = lst_insere_fim(l, a->chave[i]);
+    TLSE *aux1 = insere_intervalo(a->filho[i], x, y);
+    l = junta_lista(aux1, l);
+    l = lst_insere(l, a->chave[i]);
     i++;
   }
-  TLSE *aux2 = insere_intervalo2(a->filho[i], x, y);
-  l = junta_lista(l, aux2);
-  return l;
-}
-
-TLSE *insere_intervalo(TAB *a, int x, int y)
-{
-  if(!a)
-    return NULL;
-  int i=0;
-  TLSE *l = NULL;
-  
-  while((a->chave[i] < y) && (i < a->nchaves))
-  {
-    if(a->chave[i] > x)
-    {
-      TLSE *aux = insere_intervalo(a->filho[i], x, y);
-      l = junta_lista(l, aux);
-      l = lst_insere_fim(l, a->chave[i]);
-    }
-    i++;
-  }
-  TLSE* aux = insere_intervalo(a->filho[i], x, y);
-  l = junta_lista(l, aux);
-
+  TLSE *aux2 = insere_intervalo(a->filho[i], x, y);
+  l = junta_lista(aux2, l);
   return l;
 }
 
@@ -369,8 +351,7 @@ void junta_pilha(TP *p1, TP *p2)
       push(p1, pop(aux));
   }
 }
-
-TP *insere_inter_pilha2(TAB *a, int x, int y)
+TP *insere_inter_pilha(TAB *a, int x, int y)
 {
   if(!a)
   {
@@ -385,42 +366,18 @@ TP *insere_inter_pilha2(TAB *a, int x, int y)
     i++;
   while((i < a->nchaves) && (a->chave[i] < y))
   {
-    TP *aux1 = insere_inter_pilha2(a->filho[i], x, y);
+    TP *aux1 = insere_inter_pilha(a->filho[i], x, y);
     junta_pilha(p, aux1);
     push(p, a->chave[i]);
+    libera_pilha(aux1);
     i++;
   }
-  TP *aux2 = insere_inter_pilha2(a->filho[i], x, y);
+  TP *aux2 = insere_inter_pilha(a->filho[i], x, y);
   junta_pilha(p, aux2);
+  libera_pilha(aux2);
   return p; 
 }
 
-TP *insere_inter_pilha(TAB *a, int x, int y)
-{
-  if(!a)
-  {
-    TP *vaz = cria_pilha();
-    return vaz;
-  }
-  int i=0;
-  TP *p = cria_pilha();
-  while((a->chave[i] < y) && (i < a->nchaves))
-  {
-    if(a->chave[i] > x)
-    {
-      TP *aux = insere_inter_pilha(a->filho[i], x, y);
-      junta_pilha(p, aux);
-      push(p, a->chave[i]);
-      libera_pilha(aux);
-    }
-    i++;
-  }
-  TP *aux1 = insere_inter_pilha(a->filho[i], x, y);
-  junta_pilha(p, aux1);
-  libera_pilha(aux1);
-
-  return p;
-}
 
 TLSE *insere_maior(TAB *a, int x)
 {
@@ -429,19 +386,19 @@ TLSE *insere_maior(TAB *a, int x)
   int i=0;
   TLSE *l = NULL;
 
-  while((a->chave[i] <= x) && (i < a->nchaves))
+  while((i < a->nchaves) && (a->chave[i] < x))
     i++;
-  
-  while((i < a->nchaves))
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  while(i < a->nchaves)
   {
     TLSE *aux = insere_maior(a->filho[i], x);
-    l = junta_lista(l, aux);
-    if(a->chave[i] > x)
-      l = lst_insere_fim(l, a->chave[i]);
+    l = junta_lista(aux, l);
+    l = lst_insere(l, a->chave[i]);
     i++;
   }
   TLSE *aux = insere_maior(a->filho[i], x);
-  l = junta_lista(l, aux);
+  l = junta_lista(aux, l);
 
   return l;
 }
@@ -480,12 +437,11 @@ TLSE *lista_menor(TAB *a, int x)
     return NULL;
   int i=0;
   TLSE *l = NULL;
-  while((i < a->nchaves) && (a->chave[i] <= x))
+  while((i < a->nchaves) && (a->chave[i] < x))
   {
     TLSE *aux = lista_menor(a->filho[i], x);
-    l = junta_lista(l, aux);
-    if(a->chave[i] < x)
-      l = lst_insere_fim(l, a->chave[i]);
+    l = junta_lista(aux, l);
+    l = lst_insere(l, a->chave[i]);
     i++;
   }
   TLSE *temp = lista_menor(a->filho[i], x);
@@ -503,12 +459,11 @@ TP *pilha_menor(TAB *a, int x)
   }
   int i=0;
   TP *p = cria_pilha();
-  while((a->chave[i] <= x) && (i < a->nchaves))
+  while((a->chave[i] < x) && (i < a->nchaves))
   {
     TP *aux = pilha_menor(a->filho[i], x);
     junta_pilha(p, aux);
-    if(a->chave[i] < x)
-      push(p, a->chave[i]);
+    push(p, a->chave[i]);
     libera_pilha(aux);
     i++;
   }
