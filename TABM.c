@@ -1,3 +1,13 @@
+/*
+- retorna o anterior do elemento x;
+- retorna o posterior do elemento x;
+- imprime intervalo
+- retorna lista de intervalo
+- retorna pilha de intervalo
+- retorna menor elemento
+- retorna maior elemento
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -150,19 +160,20 @@ TLSE *lista_intervalo(TABM *a, int x, int y)
     return NULL;
   TLSE *l = NULL;
   int i = 0;
-  while((i < a->nchaves) && (a->chave[i] < y))
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  while((i < a->nchaves)  && (a->chave[i] < y))
   {
-    if(a->chave[i] >= x)
-    {
-      TLSE *aux1 = lista_intervalo(a->filho[i], x, y);
-      l = junta_lista(l, aux1);
-      if(a->folha)
-        l = lst_insere_fim(l, a->chave[i]);
-    }
+    TLSE *aux = lista_intervalo(a->filho[i], x, y);
+    l = junta_lista(aux, l);
+    if(a->folha)
+      l = lst_insere(l, a->chave[i]);
     i++;
   }
-  TLSE *aux2 = lista_intervalo(a->filho[i], x, y);
-  l = junta_lista(l, aux2);
+  TLSE *aux = lista_intervalo(a->filho[i], x, y);
+  l = junta_lista(aux, l);
   return l;
 }
 
@@ -174,16 +185,18 @@ TLSE *lista_maiores(TABM *a, int x)
   int i=0;
   while((i < a->nchaves) && (a->chave[i] < x))
     i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
   while(i < a->nchaves)
   {
     TLSE *aux = lista_maiores(a->filho[i], x);
-    l = junta_lista(l, aux);
+    l = junta_lista(aux, l);
     if(a->folha && (a->chave[i] > x))
-      l = lst_insere_fim(l, a->chave[i]);
+      l = lst_insere(l, a->chave[i]);
     i++;
   }
   TLSE *aux = lista_maiores(a->filho[i], x);
-  l = junta_lista(l, aux);
+  l = junta_lista(aux, l);
   return l;
 }
 
@@ -206,24 +219,25 @@ TP *pilha_intervalo(TABM *a, int x, int y)
     TP *vazia = cria_pilha();
     return vazia;
   }
-  TP *resp = cria_pilha();
-  int i = 0;
+  TP *p = cria_pilha();
+  int i=0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
   while((i < a->nchaves) && (a->chave[i] < y))
   {
-    if(a->chave[i] > x)
-    {
-      TP *aux = pilha_intervalo(a->filho[i], x, y);
-      junta_pilha(resp, aux);
-      libera_pilha(aux);
-      if(a->folha)
-        push(resp, a->chave[i]);
-    }
+    TP *aux = pilha_intervalo(a->filho[i], x, y);
+    junta_pilha(p, aux);
+    if(a->folha)
+      push(p, a->chave[i]);
+    libera_pilha(aux);
     i++;
   }
   TP *aux = pilha_intervalo(a->filho[i], x, y);
-  junta_pilha(resp, aux);
+  junta_pilha(p, aux);
   libera_pilha(aux);
-  return resp;
+  return p;
 }
 
 void imprime_intervalo(TABM *a, int x, int y)
@@ -245,6 +259,126 @@ void imprime_intervalo(TABM *a, int x, int y)
   imprime_intervalo(a->filho[i], x, y);
 }
 
+void compara(TABM *a, int x, int *resp)
+{
+  if(!a)
+    return;
+  int i=0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  
+  if((i < a->nchaves) && (a->chave[i] == x))
+  {
+    if((*resp == INT_MAX) && (a->folha))
+      *resp = a->chave[i];
+    i++;
+  }
+
+  if((i < a->nchaves) && (a->chave[i] > x) && (a->folha))
+  {
+    if(*resp == x)
+      *resp = a->chave[i];
+    else
+    {
+      if(*resp > a->chave[i])
+        *resp = a->chave[i];
+    }
+  }
+
+  if(a->folha)
+    return;
+  else
+  {
+    compara(a->filho[i], x, resp);
+    if(i < a->nchaves)
+      compara(a->filho[i+1], x, resp);
+  }
+}
+
+int sucessor(TABM *a, int x)
+{
+  if(!a)
+  {
+    printf("Arvore vazia\n");
+    exit(1);
+  }
+  int resp = INT_MAX;
+  compara(a, x, &resp);
+  if(resp == INT_MAX)
+  {
+    printf("Valor é maior valores da arvore\n");
+    exit(1);
+  }
+  else
+    return resp;
+}
+
+void compara_ant(TABM *a, int x, int *resp)
+{
+  if(!a)
+    return;
+  
+  int i=0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+  {
+    if((*resp == x) && (a->folha))
+      *resp = a->chave[i];
+    else
+      if((*resp < a->chave[i]) && (a->folha))
+        *resp = a->chave[i];
+    i++;
+  }
+  if((i < a->nchaves) && (a->chave[i] == x) && (a->folha))
+    if(*resp == INT_MIN)
+      *resp = a->chave[i];
+
+  if(a->folha)
+    return;
+  else
+  {
+    compara_ant(a->filho[i], x, resp);
+    if(i > 0)
+      compara(a->filho[i-1], x, resp);
+  }
+}
+
+int antecessor(TABM *a, int x)
+{
+  if(!a)
+  {
+    printf("Arvore vazia\n");
+    exit(1);
+  }
+  int resp = INT_MIN;
+  compara_ant(a, x, &resp);
+  if(resp == INT_MIN)
+  {
+    printf("Valor é menor valores da arvore\n");
+    exit(1);
+  }
+  else
+    return resp;
+}
+
+int maior(TABM *a)
+{
+  if(!a)
+    return INT_MIN;
+  if(a->folha)
+    return a->chave[a->nchaves - 1];
+  else
+    return maior(a->filho[a->nchaves]);
+}
+
+int menor(TABM *a)
+{
+  if(!a)
+    return INT_MAX;
+  if(a->folha)
+    return a->chave[0];
+  else
+    return menor(a->filho[0]);
+}
 
 
 int main(void){
