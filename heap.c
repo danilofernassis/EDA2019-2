@@ -171,9 +171,9 @@ void preenche_arv(TAB *a, int *vet, int n, int i)
   int e = esq(i), d = dir(i);
 
   if(e < n)
-    a->esq = cria_TAB(vet[e]);
+    a->esq = cria_TAB(vet[e], NULL, NULL);
   if(d < n)
-    a->dir = cria_TAB(vet[d]);
+    a->dir = cria_TAB(vet[d], NULL, NULL);
 
   preenche_arv(a->esq, vet, n, e);
   preenche_arv(a->dir, vet, n, d);
@@ -183,7 +183,7 @@ void preenche_arv(TAB *a, int *vet, int n, int i)
 TAB *vet2arv(int *vet, int n)
 {
   TAB *a = cria_vazia();
-  a = cria_TAB(vet[0]);
+  a = cria_TAB(vet[0], NULL, NULL);
   preenche_arv(a, vet, n, 0);
   return a;
 }
