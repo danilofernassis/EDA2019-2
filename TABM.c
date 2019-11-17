@@ -1,7 +1,9 @@
 /*
 - retorna o anterior do elemento x;
 - retorna o posterior do elemento x;
-- imprime intervalo
+- imprime intervalo;
+- imprime maiores que x;
+- imprime menores que x;
 - retorna lista de intervalo
 - retorna pilha de intervalo
 - retorna menor elemento
@@ -378,6 +380,44 @@ int menor(TABM *a)
     return a->chave[0];
   else
     return menor(a->filho[0]);
+}
+
+void imprime_maiores(TABM *a, int x)
+{
+  if(!a)
+    return;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  while((i < a->nchaves) && (a->chave[i] > x))
+  {
+    imprime_maiores(a->filho[i], x);
+    if(a->folha)
+      printf("%d->", a->chave[i]);
+    i++;
+  }
+  if(a->folha)
+    return;
+  imprime_maiores(a->filho[i], x);
+}
+
+void imprime_menores(TABM *a, int x)
+{
+  if(!a)
+    return;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+  {
+    imprime_menores(a->filho[i], x);
+    if(a->folha)
+      printf("%d->", a->chave[i]);
+    i++;
+  }
+  if(a->folha)
+    return;
+  imprime_menores(a->filho[i], x);
 }
 
 
