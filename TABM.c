@@ -462,7 +462,7 @@ void imprime_menores2(TABM *a, int x)
         if(aux->chave[i] < x)
           printf("%d->", aux->chave[i]);
         else
-          break;
+          return;
       }
       aux = aux->prox;
     }
