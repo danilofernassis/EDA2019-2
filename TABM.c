@@ -261,6 +261,35 @@ void imprime_intervalo(TABM *a, int x, int y)
   imprime_intervalo(a->filho[i], x, y);
 }
 
+void imprime_intervalo2(TABM *a, int x, int y)
+{
+  if(!a)
+    return;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  if(a->folha)
+  {
+    TABM *aux = a;
+    while(aux)
+    {
+      int j;
+      for(j = 0; j < aux->nchaves; j++)
+      {
+        if((aux->chave[j] > x) && (aux->chave[j] < y))
+          printf("%d->", aux->chave[j]);
+        else if (aux->chave[j] >= y)
+          return;
+      }
+      aux = aux->prox;
+    }
+  }
+  else
+    imprime_intervalo2(a->filho[i], x, y);
+}
+
 void compara(TABM *a, int x, int *resp)
 {
   if(!a)
