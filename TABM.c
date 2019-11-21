@@ -403,6 +403,33 @@ void imprime_maiores(TABM *a, int x)
   imprime_maiores(a->filho[i], x);
 }
 
+void imprime_maiores2(TABM *a, int x)
+{
+  if(!a)
+    return;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  if(a->folha)
+  {
+    TABM *aux = a;
+    while(aux)
+    {
+      int j;
+      for(j = 0; j < aux->nchaves; j++)
+      {
+        if(aux->chave[j] > x)
+          printf("%d->", aux->chave[j]);
+      }
+      aux = aux->prox;
+    }
+  }
+  else
+    imprime_maiores2(a->filho[i], x);
+}
+
 void imprime_menores(TABM *a, int x)
 {
   if(!a)
@@ -418,6 +445,30 @@ void imprime_menores(TABM *a, int x)
   if(a->folha)
     return;
   imprime_menores(a->filho[i], x);
+}
+
+void imprime_menores2(TABM *a, int x)
+{
+  if(!a)
+    return;
+  if(a->folha)
+  {
+    TABM *aux = a;
+    int i = 0;
+    while(aux)
+    {
+      for(i = 0; i < aux->nchaves; i++)
+      {
+        if(aux->chave[i] < x)
+          printf("%d->", aux->chave[i]);
+        else
+          break;
+      }
+      aux = aux->prox;
+    }
+  }
+  else
+    imprime_menores2(a->filho[0], x);
 }
 
 
