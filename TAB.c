@@ -823,7 +823,6 @@ int mi(TAB *a1, TAB *a2)
       resp = 0;
   return resp;
 }
-
 TLSE *lista_nivel(TAB *a, int n)
 {
   if(!a)
@@ -836,6 +835,21 @@ TLSE *lista_nivel(TAB *a, int n)
   }
   else
     return junta_listas(lista_nivel(a->esq, n-1), lista_nivel(a->dir, n-1)); 
+}
+
+TP *junta_pilhas2(TP *p1, TP *p2)
+{
+  if(vazia_pilha(p1))
+    return p2;
+  if(vazia_pilha(p2))
+    return p1;
+  TP *temp = cria_pilha();
+  while(!vazia_pilha(p2))
+    push(temp, pop(p2));
+  while(!vazia_pilha(temp))
+    push(p1, pop(temp));
+  libera_pilha(temp);
+  return p1;
 }
 
 TP *pilha_nivel(TAB *a, int n)
@@ -852,12 +866,7 @@ TP *pilha_nivel(TAB *a, int n)
     return p;
   }
   else
-  {
-    TP *p = cria_pilha();
-    junta_pilhas(p, pilha_nivel(a->esq, n-1));
-    junta_pilhas(p, pilha_nivel(a->dir, n-1));
-    return p;
-  }
+    return junta_pilhas2(pilha_nivel(a->esq, n-1), pilha_nivel(a->dir, n-1));
 }
 
 int main(void) {
