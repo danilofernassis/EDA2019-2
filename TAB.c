@@ -434,6 +434,7 @@ int eabb_lista(TAB *a)
   {
     if(p->info < ant->info)
       return 0;
+    ant = p;
     p = p->prox;
   }
   return 1;
