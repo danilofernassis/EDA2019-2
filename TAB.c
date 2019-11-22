@@ -22,6 +22,8 @@
 - retorna elemento antecessor de elemento x
 - retorna em lista o caminho ate determinado elemento
 - verifica se duas arvores possuem os mesmos valores independento formato arvore
+- lista nivel;
+- pilha nivel;
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -822,6 +824,41 @@ int mi(TAB *a1, TAB *a2)
   return resp;
 }
 
+TLSE *lista_nivel(TAB *a, int n)
+{
+  if(!a)
+    return NULL;
+  if(n == 0)
+  {
+    TLSE *l = NULL;
+    l = lst_insere(l, a->info);
+    return l;
+  }
+  else
+    return junta_listas(lista_nivel(a->esq, n-1), lista_nivel(a->dir, n-1)); 
+}
+
+TP *pilha_nivel(TAB *a, int n)
+{
+  if(!a)
+  {
+    TP *vazia = cria_pilha();
+    return vazia;
+  }
+  if(n == 0)
+  {
+    TP *p = cria_pilha();
+    push(p, a->info);
+    return p;
+  }
+  else
+  {
+    TP *p = cria_pilha();
+    junta_pilhas(p, pilha_nivel(a->esq, n-1));
+    junta_pilhas(p, pilha_nivel(a->dir, n-1));
+    return p;
+  }
+}
 
 int main(void) {
   TAB *arv = cria_vazia(),
@@ -846,7 +883,6 @@ int main(void) {
   imprime_intervalo(arv, 11, 18);
   
   //printf("%d\n", igual(arv6, arv_teste1));
-
 
 
 }
