@@ -608,28 +608,30 @@ void fator_bal(TAB *a)
   fator_bal(a->dir);
 }
 
-TLSE *preenche_ancestral(TAB *a, TLSE *l, int x)
+TLSE *caminho(TAB *a, int x)
 {
-  if(!a || (a->info == x))
-    return l;
+  TLSE *l = NULL;
   l = lst_insere(l, a->info);
+  if(a->info == x)
+    return l;
   if(busca(a->esq, x))
-    l = preenche_ancestral(a->esq, l, x);
+  {
+    TLSE *esq = caminho(a->esq, x);
+    l = junta_listas(esq, l);
+  }
   else
-    l = preenche_ancestral(a->dir, l, x);
+  {
+    TLSE *dir = caminho(a->dir, x);
+    l = junta_listas(dir, l);
+  }
   return l;
 }
 
-TLSE *ancestrais(TAB *a, int x)
+TLSE *ancestral(TAB *a, int x)
 {
-  if(!a || (a->info == x) || !busca(a, x))
+  if(!a || !busca(a, x))
     return NULL;
-  TLSE *l = NULL;
-  l = lst_insere(l, a->info);
-  if(busca(a->esq, x))
-    l = preenche_ancestral(a->esq, l, x);
-  else
-    l = preenche_ancestral(a->dir, l, x);
+  TLSE *l = caminho(a, x);
   return l;
 }
 
