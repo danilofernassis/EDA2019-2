@@ -442,15 +442,17 @@ int eabb_lista(TAB *a)
   return 1;
 }
 
-void junta_pilhas(TP *p1, TP *p2)
+TP *junta_pilhas(TP *p1, TP *p2)
 {
   if(vazia_pilha(p2))
-    return;
+    return p1;
   TP *aux = cria_pilha();
   while(!vazia_pilha(p2))
     push(aux, pop(p2));
   while(!vazia_pilha(aux))
     push(p1, pop(aux));
+  libera_pilha(aux);
+  return p1;
 }
 
 TP *preenche_pilha(TAB *a)
@@ -463,11 +465,11 @@ TP *preenche_pilha(TAB *a)
   TP *resp = cria_pilha();
   TP *esq = cria_pilha();
   esq = preenche_pilha(a->esq);
-  junta_pilhas(resp, esq);
+  resp = junta_pilhas(resp, esq);
   push(resp, a->info);
   libera_pilha(esq);
   TP *dir = preenche_pilha(a->dir);
-  junta_pilhas(resp, dir);
+  resp = junta_pilhas(resp, dir);
   libera_pilha(dir);
   return resp;
 }
@@ -837,21 +839,6 @@ TLSE *lista_nivel(TAB *a, int n)
     return junta_listas(lista_nivel(a->esq, n-1), lista_nivel(a->dir, n-1)); 
 }
 
-TP *junta_pilhas2(TP *p1, TP *p2)
-{
-  if(vazia_pilha(p1))
-    return p2;
-  if(vazia_pilha(p2))
-    return p1;
-  TP *temp = cria_pilha();
-  while(!vazia_pilha(p2))
-    push(temp, pop(p2));
-  while(!vazia_pilha(temp))
-    push(p1, pop(temp));
-  libera_pilha(temp);
-  return p1;
-}
-
 TP *pilha_nivel(TAB *a, int n)
 {
   if(!a)
@@ -866,7 +853,7 @@ TP *pilha_nivel(TAB *a, int n)
     return p;
   }
   else
-    return junta_pilhas2(pilha_nivel(a->esq, n-1), pilha_nivel(a->dir, n-1));
+    return junta_pilhas(pilha_nivel(a->esq, n-1), pilha_nivel(a->dir, n-1));
 }
 
 int main(void) {
