@@ -504,17 +504,17 @@ TLSE *ancestral(TABB *a, int x)
   return l;
 }
 
-void junta_pilhas(TP *p1, TP *p2)
+TP *junta_pilhas(TP *p1, TP *p2)
 {
-  if(!p2)
-    return;
+  if(vazia_pilha(p2))
+    return p1;
   TP *aux = cria_pilha();
   while(!vazia_pilha(p2))
     push(aux, pop(p2));
   while(!vazia_pilha(aux))
     push(p1, pop(aux));
-  libera_pilha(p2);
   libera_pilha(aux);
+  return p1;
 }
 
 TP *caminho_pilha(TABB *a, int x)
@@ -531,12 +531,12 @@ TP *caminho_pilha(TABB *a, int x)
   if(a->info > x)
   {
     TP *esq = caminho_pilha(a->esq, x);
-    junta_pilhas(p, esq);
+    p = junta_pilhas(p, esq);
   }
   else
   {
     TP *dir = caminho_pilha(a->dir, x);
-    junta_pilhas(p, dir);
+    p = junta_pilhas(p, dir);
   }
   return p;
 }
@@ -660,6 +660,30 @@ TLSE *lista_intervalo(TABB *a, int x, int y)
   return l;
 }
 
+TP *pilha_intevalo(TABB *a, int x, int y)
+{
+  if(!a)
+  {
+    TP *vazia = cria_pilha();
+    return vazia;
+  }
+  TP *p = cria_pilha();
+  if((a->info > x) && (a->info < y))
+  {
+    TP *esq = pilha_intevalo(a->esq, x, y);
+    TP *dir = pilha_intevalo(a->dir, x, y);
+    p = junta_pilhas(p, esq);
+    push(p, a->info);
+    p = junta_pilhas(p, dir);
+    libera_pilha(esq);
+    libera_pilha(dir);
+  }
+  if(a->info <= x)
+    return pilha_intevalo(a->dir, x, y);
+  if(a->info >= y)
+    return pilha_intevalo(a->esq, x, y);
+  return p;
+}
 
 
 int main(void) {
