@@ -640,6 +640,26 @@ int nivelx(TABB *a, int x)
   return conta_nivel(a, x, 0);
 }
 
+TLSE *lista_intervalo(TABB *a, int x, int y)
+{
+  if(!a)
+    return NULL;
+  TLSE *l = NULL;
+  if((a->info > x) && (a->info < y))
+  {
+    TLSE *esq = lista_intervalo(a->esq, x, y);
+    TLSE *dir = lista_intervalo(a->dir, x, y);
+    l = junta_listas(esq, l);
+    l = lst_insere(l, a->info);
+    l = junta_listas(dir, l);
+  }
+  if(a->info <= x)
+    return lista_intervalo(a->dir, x, y);
+  if(a->info >= y)
+    return lista_intervalo(a->esq, x, y);
+  return l;
+}
+
 
 
 int main(void) {
