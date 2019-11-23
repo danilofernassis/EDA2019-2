@@ -786,6 +786,36 @@ TLSE *ancestral(TAB *a, int x)
   return l;
 }
 
+TP *caminho_pilha(TAB *a, int x)
+{
+  TP *p = cria_pilha();
+  push(p, a->info);
+  if(a->info == x)
+    return p;
+  if(busca(a->esq, x))
+  {
+    TP *esq = caminho_pilha(a->esq, x);
+    p = junta_pilhas(p, esq);
+  }
+  else
+  {
+    TP *dir = caminho_pilha(a->dir, x);
+    p = junta_pilhas(p, dir);
+  }
+  return p;
+}
+
+TP *ancestral_pilha(TAB *a, int x)
+{
+  if(!a || !busca(a,x))
+  {
+    TP *vazia = cria_pilha();
+    return vazia;
+  }
+  TP *p = caminho_pilha(a, x);
+  return p;
+}
+
 //verifica se duas arvores possuem os mesmos valores independente da forma que eles estao organizados na arvore.
 int mi(TAB *a1, TAB *a2)
 {
