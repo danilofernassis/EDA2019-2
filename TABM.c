@@ -500,6 +500,155 @@ void imprime_menores2(TABM *a, int x)
     imprime_menores2(a->filho[0], x);
 }
 
+TLSE *lista_menores(TABM *a, int x)
+{
+  if(!a)
+    return NULL;
+  TLSE *l = NULL;
+  TABM *p = a;
+  while(!p->folha)
+    p = p->filho[0];
+  while(p)
+  {
+    int i = 0;
+    for(i = 0; (i < p->nchaves) && (p->chave[i] < x); i++)
+      l = lst_insere(l, p->chave[i]);
+    if((i < p->nchaves) && (p->chave[i] >= x))
+      p = NULL;
+    else
+      p = p->prox;
+  }
+  return l;
+}
+
+TLSE *lista_maiores2(TABM *a, int x)
+{
+  if(!a)
+    return NULL;
+  TLSE *l = NULL;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  if(a->folha)
+  {
+    TABM *p = a;
+    int j = 0;
+    while(p)
+    {
+      for(j = 0; j < p->nchaves; j++)
+        if(p->chave[i] > x)
+          l = lst_insere(l, p->chave[j]);
+      p = p->prox;
+    }
+    return l;
+  }
+  return lista_maiores2(a->filho[i], x);
+}
+
+TLSE *lista_intervalo2(TABM *a, int x, int y)
+{
+  if(!a)
+    return NULL;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  if(a->folha)
+  {
+    TABM *p = a;
+    TLSE *l = NULL;
+    int j = 0;
+    while(p)
+    {
+      for(j = 0; (j < p->nchaves) && (p->chave[j] < y); j++)
+        if(p->chave[j] > x)
+          l = lst_insere(l, p->chave[j]);
+      if((j < p->nchaves) && (p->chave[j] >= y))
+        p = NULL;
+      else
+        p = p->prox;
+    }
+    return l;
+  }
+  return lista_intervalo2(a->filho[i], x, y);
+}
+
+int sucessor2(TABM *a, int x)
+{
+  if(!a)
+    return INT_MAX;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if((i < a->nchaves) && (a->chave[i] == x))
+    i++;
+  if(a->folha)
+  {
+    TABM *p = a;
+    int j = 0;
+    int resp = INT_MAX;
+    while(p)
+    {
+      for(j = 0; j < p->nchaves; j++)
+      {
+        if(p->chave[j] == x)
+          if(resp == INT_MAX)
+            resp = p->chave[j];
+
+        if(p->chave[j] > x)
+        {
+          if(resp == x)
+            resp = p->chave[j];
+          else
+            if(resp > p->chave[j])
+              resp = p->chave[j];
+        }
+      }
+      if((resp != INT_MAX) && (resp != x))
+        p = NULL;
+      else
+        p = p->prox;
+    }
+    return resp;
+  }
+  return sucessor2(a->filho[i], x);
+}
+
+int antecessor2(TABM *a, int x)
+{
+  if(!a)
+    return INT_MIN;
+  int i = 0;
+  while((i < a->nchaves) && (a->chave[i] < x))
+    i++;
+  if(a->folha)
+  {
+    int j = 0;
+    int resp = INT_MIN;
+ 
+    for(j = 0; j < a->nchaves; j++)
+    { 
+      if(a->chave[j] < x)
+      {
+        if(resp == x)
+          resp = a->chave[j];
+        else
+          if(resp < a->chave[j])
+            resp = a->chave[j];
+      }
+      if(a->chave[j] == x)
+        if(resp == INT_MIN)
+          resp = a->chave[j];
+    }
+    return resp;
+  }
+  return antecessor2(a->filho[i], x);
+}
+ 
+
 
 int main(void){
   TABM * arvore = inicializa();
