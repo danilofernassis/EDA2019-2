@@ -320,15 +320,33 @@ void imprime_TABB(TABB *a)
   printTree(a, NULL, 0);
 }
 
-void imprime_caminho(ARV *a, int x)
+TABB *busca(TABB *a, int x)
 {
   if(!a)
-    return;
-  printf("%d->", a->info);
+    return NULL;
+  if(a->info == x)
+    return a;
   if(a->info > x)
-    imprime_caminho(a->esq, x);
-  if(a->info < x)
-    imprime_caminho(a->dir, x);
+    return busca(a->esq, x);
+  return busca(a->dir, x);
+}
+
+void percurso(TABB *a, int x)
+{
+  printf("%d->", a->info);
+  if(a->info == x)
+    return;
+  if(x < a->info)
+    percurso(a->esq, x);
+  else
+    percurso(a->dir, x);
+}
+
+void imprime_caminho(TABB *a, int x)
+{
+  if(!a || !busca(a, x))
+    return;
+  percurso(a, x);
 }
 
 void imprime_intervalo(TABB *a, int x, int y)
@@ -385,7 +403,6 @@ void compara(TABB *a, int x, int *resp)
     compara(a->esq, x, resp);
   else
     compara(a->dir, x, resp);
-
 }
 
 int sucessor(TABB *a, int x)
@@ -451,17 +468,6 @@ int antecessor(TABB *a, int x)
     return resp;
 }
 
-TABB *busca(TABB *a, int x)
-{
-  if(!a)
-    return NULL;
-  if(a->info == x)
-    return a;
-  if(a->info > x)
-    return busca(a->esq, x);
-  return busca(a->dir, x);
-}
-
 TLSE *junta_listas(TLSE *l1, TLSE *l2)
 {
   if(!l1)
@@ -483,16 +489,12 @@ TLSE *caminho(TABB *a, int x)
   l = lst_insere(l, a->info);
   if(a->info == x)
     return l;
+  TLSE *aux;
   if(a->info > x)
-  {
-    TLSE *esq = caminho(a->esq, x);
-    l = junta_listas(esq, l);
-  }
+    aux = caminho(a->esq, x);
   else
-  {
-    TLSE *dir = caminho(a->dir, x);
-    l = junta_listas(dir, l);
-  }
+    aux = caminho(a->dir, x);
+  l = junta_listas(l, aux);
   return l;
 }
 
@@ -501,6 +503,25 @@ TLSE *ancestral(TABB *a, int x)
   if((!a) || (!busca(a,x)))
     return NULL;
   TLSE *l = caminho(a,x);
+  return l;
+}
+
+TLSE *ancestral2(TABB *a, int x)
+{
+  if(!a)
+    return NULL;
+  TLSE *l = NULL;
+  l = lst_insere(l, a->info);
+  if(a->info == x)
+    return l;
+  TLSE *aux;
+  if(a->info > x)
+    aux = ancestral2(a->esq, x);
+  else
+    aux = ancestral2(a->dir, x);
+  if(!aux)
+    return NULL;
+  l = junta_listas(l, aux);
   return l;
 }
 
@@ -528,16 +549,12 @@ TP *caminho_pilha(TABB *a, int x)
   push(p, a->info);
   if(a->info == x)
     return p;
+  TP *aux;
   if(a->info > x)
-  {
-    TP *esq = caminho_pilha(a->esq, x);
-    p = junta_pilhas(p, esq);
-  }
+    aux = caminho_pilha(a->esq, x);
   else
-  {
-    TP *dir = caminho_pilha(a->dir, x);
-    p = junta_pilhas(p, dir);
-  }
+    aux = caminho_pilha(a->dir, x);
+  p = junta_pilhas(p, aux);
   return p;
 }
 
@@ -553,6 +570,28 @@ TP *ancestral_pilha(TABB *a, int x)
     TP *p = caminho_pilha(a, x);
     return p;
   }
+}
+
+TP *ancestral_pilha2(TABB *a, int x)
+{
+  if(!a)
+  {
+    TP *vazia = cria_pilha();
+    return vazia;
+  }
+  TP *p = cria_pilha();
+  push(p, a->info);
+  if(a->info == x)
+    return p;
+  TP *aux = cria_pilha();
+  if(a->info > x)
+    aux = ancestral_pilha2(a->esq, x);
+  else
+    aux = ancestral_pilha2(a->dir, x);
+  if(vazia_pilha(aux))
+    return aux;
+  p = junta_pilhas(p, aux);
+  return p;
 }
 
 int maior_elem(TABB *a)
@@ -683,6 +722,33 @@ TP *pilha_intevalo(TABB *a, int x, int y)
   if(a->info >= y)
     return pilha_intevalo(a->esq, x, y);
   return p;
+}
+
+void troca(TABB *a)
+{
+  if(!a)
+    return;
+  troca(a->esq);
+  troca(a->dir);
+  TABB *temp = a->esq;
+  a->esq = a->dir;
+  a->dir = temp;
+}
+
+void troca_abaixo_nivel(TABB *a, int n)
+{
+  if(!a)
+    return;
+  if(n == 0)
+  {
+    troca(a);
+    return;
+  }
+  else
+  {
+    troca_abaixo_nivel(a->esq, n-1);
+    troca_abaixo_nivel(a->dir, n-1);
+  }
 }
 
 
