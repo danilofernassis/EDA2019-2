@@ -237,7 +237,31 @@ void imprime_vet(int *vet, int n)
   for(i=0; i < n; i++)
     printf("%d ", vet[i]);
   printf("\n");
+}
 
+void remove_filhos(int *vet, int *n, int i)
+{
+  int e = esq(i), d = dir(i);
+  if(d < *n)
+  {
+    int j = d+1;
+    while(j < *n)
+    {
+      vet[j-1] = vet[j];
+      j++;
+    }
+    *n = *n - 1;
+  }
+  if(e < *n)
+  {
+    int j = e+1;
+    while(j < *n)
+    {
+      vet[j-1] = vet[j];
+      j++;
+    }
+    *n = *n -1;
+  }
 }
 
 
