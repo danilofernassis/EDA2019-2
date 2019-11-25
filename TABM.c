@@ -588,8 +588,8 @@ int sucessor2(TABM *a, int x)
   if(a->folha)
   {
     TABM *p = a;
-    int j = 0;
     int resp = INT_MAX;
+    int j = 0;
     while(p)
     {
       for(j = 0; j < p->nchaves; j++)
@@ -597,7 +597,6 @@ int sucessor2(TABM *a, int x)
         if(p->chave[j] == x)
           if(resp == INT_MAX)
             resp = p->chave[j];
-
         if(p->chave[j] > x)
         {
           if(resp == x)
@@ -621,33 +620,24 @@ int antecessor2(TABM *a, int x)
 {
   if(!a)
     return INT_MIN;
-  int i = 0;
-  while((i < a->nchaves) && (a->chave[i] < x))
-    i++;
-  if(a->folha)
+  TABM *p = a;
+  while(!p->folha)
+    p = p->filho[0];
+  int resp = p->chave[0];
+  if(x < resp)
+    return INT_MIN;
+  while(p)
   {
-    int j = 0;
-    int resp = INT_MIN;
- 
-    for(j = 0; j < a->nchaves; j++)
-    { 
-      if(a->chave[j] < x)
-      {
-        if(resp == x)
-          resp = a->chave[j];
-        else
-          if(resp < a->chave[j])
-            resp = a->chave[j];
-      }
-      if(a->chave[j] == x)
-        if(resp == INT_MIN)
-          resp = a->chave[j];
-    }
-    return resp;
+    int i = 0;
+    for(i = 0; (i < p->nchaves) && (p->chave[i] < x); i++)
+      resp = p->chave[i];
+    if((i < p->nchaves) && (p->chave[i] >= x))
+      p = NULL;
+    else
+      p = p->prox;
   }
-  return antecessor2(a->filho[i], x);
-}
- 
+  return resp;  
+} 
 
 
 int main(void){
