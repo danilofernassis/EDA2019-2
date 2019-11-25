@@ -264,7 +264,30 @@ void remove_filhos(int *vet, int *n, int i)
   }
 }
 
-
+void remove_ant_dep(int *vet, int *n, int i)
+{
+  int dep = i + 1, ant = i - 1;
+  if((dep < *n) && (dep > 0))
+  {
+    int j = dep + 1;
+    while(j < *n)
+    {
+      vet[j-1] = vet[j];
+      j++;
+    }
+    *n = *n - 1;
+  }
+  if((ant < *n) && (ant >= 0))
+  {
+    int j = ant + 1;
+    while(j < *n)
+    {
+      vet[j-1] = vet[j];
+      j++;
+    }
+    *n = *n - 1;
+  }
+}
 
 
 int main(void) {
