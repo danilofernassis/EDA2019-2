@@ -888,6 +888,29 @@ TP *pilha_nivel(TAB *a, int n)
     return junta_pilhas(pilha_nivel(a->esq, n-1), pilha_nivel(a->dir, n-1));
 }
 
+TLSE *ancestral2(TAB *a, int x)
+{
+  if(!a)
+    return NULL;
+  TLSE *l = NULL;
+  l = lst_insere(l, a->info);
+  if(a->info == x)
+    return l;
+  TLSE *esq, *dir;
+  esq = ancestral2(a->esq, x);
+  dir = ancestral2(a->dir, x);
+  if(!esq && !dir)
+    return NULL;
+  else
+  {
+    if(esq)
+      l = junta_listas(esq, l);
+    if(dir)
+      l = junta_listas(dir, l);
+  }
+  return l;
+}
+
 int main(void) {
   TAB *arv = cria_vazia(),
       *arv_teste = NULL,
